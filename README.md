@@ -97,6 +97,12 @@ Wed Oct 16 01:47:01 UTC 2024: setup-solace.sh Exiting
  https://localhost:1943/
  ![alt text](img/image-4.png)
 
+ ## Generate some messaging activity
+ You can publish and subscribe with any of the following
+ - [Solace TryMe UI](https://localhost:1943/#/msg-vpns/ZGVmYXVsdA==/try-me/send-receive?count=20&cursor=&displayFormat=tile)
+ - [Solace TryMe CLI](https://github.com/SolaceLabs/solace-tryme-cli)
+ - [SDKPerf](https://docs.solace.com/API/SDKPerf/SDKPerf.htm)
+ - Custom app (eg: Java / Python app)
 
  ## Check the Solace exporter
  https://localhost:9628/
