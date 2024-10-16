@@ -1,0 +1,7 @@
+{
+  "queueName": "TestQ",
+  "msgVpnName": "default",
+  "owner": "default",
+  "egressEnabled": true,
+  "ingressEnabled": true
+}

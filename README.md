@@ -67,6 +67,30 @@ Filename:             server.pem
 Configured at:        Oct 15 2024 23:43:22 UTC
 ```
 
+### Setup Solace Queues, etc
+This step is optional. You can use Solace CLI, WebUI or the script setup-solace.sh from alpine shell.
+
+```
+▶ docker exec -it alpine sh
+
+~ # sh /app/scripts/setup-solace.sh
+Wed Oct 16 01:47:01 UTC 2024: setup-solace.sh Creating objects in Solace
+SOLACE_URL: https://solace-10:1943
+SEMP_USERNAME: admin
+
+ Setting up Queues
+
+Wed Oct 16 01:47:01 UTC 2024: Processing Queue file: /app/scripts/SEMP/default/queues/TestQ/queue.json (URL: default/queues)
+{"data":{"accessType":"exclusive","consumerAckPropagationEnabled":true,"deadMsgQueue":"#DEAD_MSG_QUEUE","deliveryCountEnabled":false,"deliveryDelay":0,"egressEnabled":true,"eventBindCountThreshold":{"clearPercent":60,"setPercent":80},"eventMsgSpoolUsageThreshold":{"clearPercent":18,"setPercent":25},"eventRejectLowPriorityMsgLimitThreshold":{"clearPercent":60,"setPercent":80},"ingressEnabled":true,"maxBindCount":1000,"maxDeliveredUnackedMsgsPerFlow":10000,"maxMsgSize":10000000,"maxMsgSpoolUsage":5000,"maxRedeliveryCount":0,"maxTtl":0,"msgVpnName":"default","owner":"default","partitionCount":0,"partitionRebalanceDelay":5,"partitionRebalanceMaxHandoffTime":3,"permission":"no-access","queueName":"TestQ","redeliveryDelayEnabled":false,"redeliveryDelayInitialInterval":1000,"redeliveryDelayMaxInterval":64000,"redeliveryDelayMultiplier":200,"redeliveryEnabled":true,"rejectLowPriorityMsgEnabled":false,"rejectLowPriorityMsgLimit":0,"rejectMsgToSenderOnDiscardBehavior":"when-queue-enabled","respectMsgPriorityEnabled":false,"respectTtlEnabled":false},"links":{"subscriptionsUri":"https://solace-10:1943/SEMP/v2/config/msgVpns/default/queues/TestQ/subscriptions","uri":"https://solace-10:1943/SEMP/v2/config/msgVpns/default/queues/TestQ"},"meta":{"request":{"method":"POST","uri":"https://solace-10:1943/SEMP/v2/config/msgVpns/default/queues"},"responseCode":200}}
+ 
+ Setting up Queue subscriptions
+
+Wed Oct 16 01:47:01 UTC 2024: Processing Q Subscription file: /app/scripts/SEMP/default/queues/TestQ/subscriptions.json (URL: default/queues/TestQ/subscriptions)
+{"data":{"msgVpnName":"default","queueName":"TestQ","subscriptionTopic":"test/>"},"links":{"uri":"https://solace-10:1943/SEMP/v2/config/msgVpns/default/queues/TestQ/subscriptions/test%2F%3E"},"meta":{"request":{"method":"POST","uri":"https://solace-10:1943/SEMP/v2/config/msgVpns/default/queues/TestQ/subscriptions"},"responseCode":200}}
+Wed Oct 16 01:47:01 UTC 2024: setup-solace.sh Exiting
+```
+
+
 # Verification
 
 ## Check broker 

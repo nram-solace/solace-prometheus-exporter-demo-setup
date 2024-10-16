@@ -141,6 +141,10 @@ services:
       - poc-net
     entrypoint: >
       /bin/sh -c "apk add --no-cache curl &&  sleep 60 && sh /app/scripts/setup-solace.sh > /tmp/setup-solace.log 2>&1; sleep 600"
+    volumes:
+      - ./solace/scripts:/app/scripts
+    stdin_open: true  # Keep the container running
+    tty: true         # Allocate a pseudo-TTY
 
 networks:
   poc-net:
