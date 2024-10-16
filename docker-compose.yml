@@ -1,0 +1,152 @@
+#
+# Complete docker compose file for standing up solace broker with prometheus exporter
+#
+# usage:
+#    docker compose [--file docker-compose.yml] up [-d]
+# docker-compose logs -f
+# docker-compose ps
+# docker-compose logs -f solace-10
+# docker-compose down [-v]
+# docker-compose exec solace-10 cli [-A]
+
+#version: '3.9'
+
+services:
+  #
+  # Solace event broker 
+  # ports: 8080, 1943, 55555, etc.
+  #
+  solace-10:
+    #image: solace-pubsub-enterprise:10.8.1.169
+    image: solace/solace-pubsub-standard
+    container_name: solace-10
+    hostname: solace-10
+    networks:
+      - poc-net
+    ports:
+      - "8088:8080"   # SEMP
+      - "1943:1943" 
+      - "8008:8008"   # Web transport
+      - "1443:1443"
+      - "55333:55555" # SMF
+      - "55443:55443"
+    volumes:
+      - ./solace/certs:/usr/sw/jail/certs
+    shm_size: '2g'
+    environment:
+      - username_admin_globalaccesslevel=admin
+      - username_admin_password=admin
+      - system_scaling_maxconnectioncount=1000  # Valid: 100,1000
+      #- system_scaling_maxkafkabridgecount=200  # Valid: 200
+      #- system_scaling_maxqueuemessagecount=240 # Valid: 100,240,3000
+      #- system_scaling_maxkafkabrokerconnectioncount=300 # Valid: 300
+    user: "1000"
+    ulimits:
+      core: -1
+      memlock: -1
+      nofile:
+        soft: 2448
+        hard: 42192
+  #
+  # Solace Promethus Exporter
+  # port: 9628
+  #
+  solace-exporter:
+    image: solacecommunity/solace-prometheus-exporter
+    container_name: solace-exporter
+    depends_on:
+      - solace-10
+    networks:
+      - poc-net
+    environment:
+      - SOLACE_LISTEN_ADDR=0.0.0.0:9628
+      - SOLACE_SCRAPE_URI=https://solace-10:1943
+      - SOLACE_USERNAME=admin
+      - SOLACE_PASSWORD=admin
+      - SOLACE_TIMEOUT=5s
+      - SOLACE_SSL_VERIFY=false
+      - SOLACE_LISTEN_TLS=true
+      - SOLACE_IS_HW_BROKER=false
+      - SOLACE_DEFAULT_VPN=default
+      - SOLACE_SERVER_CERT=/etc/solace/cert.pem
+      - SOLACE_PRIVATE_KEY=/etc/solace/key.pem
+      - SOLACE_LISTEN_CERTTYPE=PEM
+      #- SOLACE_PKCS12_FILE=/path/to/your/keystore.p12
+      #- SOLACE_PKCS12_PASS=123456
+    ports:
+      - "9628:9628" 
+    volumes:
+      - ./exporter/certs/cert.pem:/etc/solace/cert.pem
+      - ./exporter/certs/key.pem:/etc/solace/key.pem
+      #- ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+    logging:
+      driver: "local"
+      options:
+        max-size: "50m"
+        max-file: "5"
+  #
+  # Prometheus
+  # port: 9090
+  #
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    networks:
+      - poc-net
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/data:/prometheus
+    logging:
+      driver: "local"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  #
+  # Grafana for dashboarding
+  # port: 3000
+  #
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    depends_on:
+      - solace-exporter
+    networks:
+      - poc-net
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+    logging:
+      driver: "local"
+      options:
+        max-size: "50m"
+        max-file: "5"
+  #
+  # Linux server for troubleshooting
+  #
+  alpine:
+    image: alpine:latest
+    container_name: alpine
+    networks:
+      - poc-net
+    entrypoint: >
+      /bin/sh -c "apk add --no-cache curl &&  sleep 60 && sh /app/scripts/setup-solace.sh > /tmp/setup-solace.log 2>&1; sleep 600"
+
+networks:
+  poc-net:
+    driver: bridge
+
+volumes:
+  grafana-data:
+    driver: local
+

@@ -1,0 +1,165 @@
+# my global config
+global:
+  scrape_interval: 10s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  scrape_timeout: 10s # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["localhost:9090", "prometheus:9090"]
+  - job_name: "sol-basic-health"
+
+    # metrics_path defaults to '/metrics'
+    metrics_path: "/solace"
+    # scheme defaults to 'http'.
+    scheme: "https"
+    params:
+      m.Version: ["*|*|"]
+    tls_config:
+      insecure_skip_verify: true
+
+    scrape_interval: 60s
+
+    static_configs:
+      - targets: ["solace-exporter:9628" ]
+        labels:
+          broker_instance: "solace-10"
+  
+  - job_name: "sol-sys-res"
+
+    # metrics_path defaults to '/metrics'
+    metrics_path: "/solace"
+    # scheme defaults to 'http'.
+    scheme: "https"
+    params:
+      m.StorageElement: ["*|*|"]
+      m.Health: ["*|*|"]
+      m.Memory: ["*|*|"]
+      m.GlobalStats: ["*|*|"]
+      m.Interface: ["*|*|"]
+    tls_config:
+      insecure_skip_verify: true
+
+    scrape_interval: 10s
+
+    static_configs:
+      - targets: ["solace-exporter:9628" ]
+        labels:
+          broker_instance: "solace-10"
+
+  - job_name: "sol-spool"
+
+    # metrics_path defaults to '/metrics'
+    metrics_path: "/solace"
+    # scheme defaults to 'http'.
+    scheme: "https"
+    params:
+      m.Spool: ["*|*|"]
+      m.VpnSpool: ["*|*|"]
+    tls_config:
+      insecure_skip_verify: true
+
+    scrape_interval: 30s
+
+    static_configs:
+      - targets: ["solace-exporter:9628" ]
+        labels:
+          broker_instance: "solace-10"
+
+  - job_name: "sol-vpn-general"
+
+    # metrics_path defaults to '/metrics'
+    metrics_path: "/solace"
+    # scheme defaults to 'http'.
+    scheme: "https"
+    params:
+      m.VpnStats: ["*|*|"]
+      m.Vpn: ["*|*|"]
+    tls_config:
+      insecure_skip_verify: true
+
+    scrape_interval: 30s
+
+    static_configs:
+      - targets: ["solace-exporter:9628" ]
+        labels:
+          broker_instance: "solace-10"
+
+  - job_name: "sol-redundancy"
+
+    # metrics_path defaults to '/metrics'
+    metrics_path: "/solace"
+    # scheme defaults to 'http'.
+    scheme: "https"
+    params:
+      m.Redundancy: ["*|*|"]
+      m.ConfigSync: ["*|*|"]
+      m.ConfigSyncVpn: ["*|*|"]
+    tls_config:
+      insecure_skip_verify: true
+
+    scrape_interval: 15s
+
+    static_configs:
+      - targets: ["solace-exporter:9628" ]
+        labels:
+          broker_instance: "solace-10"
+
+  - job_name: "sol-replication"
+
+    # metrics_path defaults to '/metrics'
+    metrics_path: "/solace"
+    # scheme defaults to 'http'.
+    scheme: "https"
+    params:
+      m.ReplicationStats: ["*|*|"]
+    tls_config:
+      insecure_skip_verify: true
+
+    scrape_interval: 30s
+
+    static_configs:
+      - targets: ["solace-exporter:9628" ]
+        labels:
+          broker_instance: "solace-10"
+
+  - job_name: "sol-queues-stats"
+
+    # metrics_path defaults to '/metrics'
+    metrics_path: "/solace"
+    # scheme defaults to 'http'.
+    scheme: "https"
+    params:
+      m.QueueStats: ["*|*|"]
+      m.QueueRates: ["*|*|"]
+      m.QueueDetails: ["*|*|"]
+    tls_config:
+      insecure_skip_verify: true
+
+    scrape_interval: 60s
+
+    static_configs:
+      - targets: ["solace-exporter:9628" ]
+        labels:
+          broker_instance: "solace-10"
+
