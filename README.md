@@ -71,7 +71,7 @@ Configured at:        Oct 15 2024 23:43:22 UTC
 
 ## Check broker 
  https://localhost:1943/
- ![alt text](image-4.png)
+ ![alt text](img/image-4.png)
 
 
  ## Check the Solace exporter
